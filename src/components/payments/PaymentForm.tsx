@@ -26,7 +26,7 @@ interface PaymentFormProps {
 }
 
 export function PaymentForm({ onBack }: PaymentFormProps) {
-  const { students, addPayment, generateReceipt } = useAppContext();
+  const { students, addPayment, generateReceipt, loading, error } = useAppContext();
   const [formData, setFormData] = useState({
     studentId: '',
     amount: '',
@@ -46,7 +46,56 @@ export function PaymentForm({ onBack }: PaymentFormProps) {
     { id: 'card', label: 'Credit/Debit Card', icon: CreditCard, description: 'Card payment' }
   ];
 
-  const selectedStudent = students.find(s => s.id === formData.studentId);
+  const selectedStudent = students?.find(s => s && s.id === formData.studentId);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center gap-4">
+          {onBack && (
+            <Button variant="ghost" onClick={onBack}>
+              ← Back
+            </Button>
+          )}
+          <div>
+            <h1 className="text-2xl text-gray-900">Record Payment</h1>
+            <p className="text-gray-600">Loading student data...</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading students...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center gap-4">
+          {onBack && (
+            <Button variant="ghost" onClick={onBack}>
+              ← Back
+            </Button>
+          )}
+          <div>
+            <h1 className="text-2xl text-gray-900">Record Payment</h1>
+            <p className="text-gray-600">Error loading data</p>
+          </div>
+        </div>
+        <Alert className="bg-red-50 border-red-200">
+          <AlertDescription className="text-red-800">
+            {error}
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -164,7 +213,7 @@ export function PaymentForm({ onBack }: PaymentFormProps) {
                     <SelectValue placeholder="Choose a student..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {students.map((student) => (
+                    {students?.filter(student => student && student.id).map((student) => (
                       <SelectItem key={student.id} value={student.id}>
                         <div className="flex items-center justify-between w-full">
                           <span>{student.name} - {student.class}</span>

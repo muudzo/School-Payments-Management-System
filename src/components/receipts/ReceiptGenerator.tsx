@@ -34,20 +34,29 @@ interface ReceiptGeneratorProps {
 }
 
 export function ReceiptGenerator({ onBack }: ReceiptGeneratorProps) {
-  const { payments, students, receipts, generateReceipt } = useAppContext();
+  const { payments, students, receipts, generateReceipt, loading, error } = useAppContext();
   const [selectedPayment, setSelectedPayment] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [generatedReceipt, setGeneratedReceipt] = useState<any>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const filteredPayments = payments.filter(payment =>
-    payment.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    payment.receiptNumber.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPayments = payments?.filter(payment =>
+    payment && payment.studentName && payment.receiptNumber &&
+    (payment.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    payment.receiptNumber.toLowerCase().includes(searchTerm.toLowerCase()))
+  ) || [];
 
-  const handleGenerateReceipt = () => {
+  const handleGenerateReceipt = async () => {
     if (selectedPayment) {
-      const receipt = generateReceipt(selectedPayment);
-      setGeneratedReceipt(receipt);
+      setIsGenerating(true);
+      try {
+        const receipt = await generateReceipt(selectedPayment);
+        setGeneratedReceipt(receipt);
+      } catch (err) {
+        console.error('Failed to generate receipt:', err);
+      } finally {
+        setIsGenerating(false);
+      }
     }
   };
 
@@ -77,8 +86,8 @@ export function ReceiptGenerator({ onBack }: ReceiptGeneratorProps) {
   };
 
   const generateReceiptHTML = (receipt: any) => {
-    const payment = payments.find(p => p.id === receipt.paymentId);
-    const student = students.find(s => s.name === receipt.studentName);
+    const payment = payments?.find(p => p && p.id === receipt.paymentId);
+    const student = students?.find(s => s && s.name === receipt.studentName);
     
     return `
 <!DOCTYPE html>
@@ -155,6 +164,55 @@ export function ReceiptGenerator({ onBack }: ReceiptGeneratorProps) {
     return <ReceiptPreview receipt={generatedReceipt} onDownload={handleDownloadReceipt} onEmail={handleEmailReceipt} onBack={() => setGeneratedReceipt(null)} />;
   }
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center gap-4">
+          {onBack && (
+            <Button variant="ghost" onClick={onBack}>
+              ← Back
+            </Button>
+          )}
+          <div>
+            <h1 className="text-2xl text-gray-900">Receipt Management</h1>
+            <p className="text-gray-600">Loading payment data...</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading payments...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center gap-4">
+          {onBack && (
+            <Button variant="ghost" onClick={onBack}>
+              ← Back
+            </Button>
+          )}
+          <div>
+            <h1 className="text-2xl text-gray-900">Receipt Management</h1>
+            <p className="text-gray-600">Error loading data</p>
+          </div>
+        </div>
+        <Alert className="bg-red-50 border-red-200">
+          <AlertDescription className="text-red-800">
+            {error}
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -202,7 +260,7 @@ export function ReceiptGenerator({ onBack }: ReceiptGeneratorProps) {
                   <SelectValue placeholder="Choose a payment..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {filteredPayments.map((payment) => (
+                  {filteredPayments?.filter(payment => payment && payment.id).map((payment) => (
                     <SelectItem key={payment.id} value={payment.id}>
                       <div className="flex items-center justify-between w-full">
                         <div>
@@ -220,11 +278,20 @@ export function ReceiptGenerator({ onBack }: ReceiptGeneratorProps) {
 
             <Button 
               onClick={handleGenerateReceipt}
-              disabled={!selectedPayment}
+              disabled={!selectedPayment || isGenerating}
               className="w-full bg-blue-600 hover:bg-blue-700"
             >
-              <FileText className="w-4 h-4 mr-2" />
-              Generate Receipt
+              {isGenerating ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <FileText className="w-4 h-4 mr-2" />
+                  Generate Receipt
+                </>
+              )}
             </Button>
           </CardContent>
         </Card>
@@ -237,7 +304,7 @@ export function ReceiptGenerator({ onBack }: ReceiptGeneratorProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {receipts.slice(-5).reverse().map((receipt) => (
+              {receipts?.filter(receipt => receipt && receipt.id).slice(-5).reverse().map((receipt) => (
                 <div key={receipt.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -256,7 +323,7 @@ export function ReceiptGenerator({ onBack }: ReceiptGeneratorProps) {
                   </div>
                 </div>
               ))}
-              {receipts.length === 0 && (
+              {(!receipts || receipts.length === 0) && (
                 <p className="text-center text-gray-500 py-4">No receipts generated yet</p>
               )}
             </div>
@@ -285,7 +352,7 @@ export function ReceiptGenerator({ onBack }: ReceiptGeneratorProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPayments.map((payment) => (
+                {filteredPayments?.filter(payment => payment && payment.id).map((payment) => (
                   <TableRow key={payment.id}>
                     <TableCell className="font-medium">{payment.receiptNumber}</TableCell>
                     <TableCell>{payment.studentName}</TableCell>
@@ -329,8 +396,8 @@ function ReceiptPreview({ receipt, onDownload, onEmail, onBack }: {
   onBack: () => void; 
 }) {
   const { payments, students } = useAppContext();
-  const payment = payments.find(p => p.id === receipt.paymentId);
-  const student = students.find(s => s.name === receipt.studentName);
+  const payment = payments?.find(p => p && p.id === receipt.paymentId);
+  const student = students?.find(s => s && s.name === receipt.studentName);
 
   return (
     <div className="p-6 space-y-6">

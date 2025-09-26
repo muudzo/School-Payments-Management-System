@@ -47,12 +47,12 @@ export function AdminDashboard({ onViewChange }: AdminDashboardProps) {
   };
   
   const outstandingBalances = students
-    .filter(student => student.balance > 0)
+    .filter(student => (student.balance ?? 0) > 0)
     .slice(0, 4)
     .map(student => ({
       student: student.name,
       class: student.class,
-      amount: student.balance,
+      amount: student.balance ?? 0,
       overdue: student.status === 'overdue'
     }));
 

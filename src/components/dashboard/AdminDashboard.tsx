@@ -120,12 +120,10 @@ export function AdminDashboard({ onViewChange }: AdminDashboardProps) {
               <div className="text-2xl text-green-600">${stats?.today?.amount?.toLocaleString() || '0'}</div>
             )}
             <p className="text-xs text-muted-foreground">
-              {statsLoading ? (
+              </p>
+              {statsLoading && (
                 <Skeleton className="h-4 w-20" />
-              ) : (
-                `${stats?.today?.count || 0} payments received`
               )}
-            </p>
           </CardContent>
         </Card>
 
@@ -141,12 +139,10 @@ export function AdminDashboard({ onViewChange }: AdminDashboardProps) {
               <div className="text-2xl text-blue-600">${stats?.thisWeek?.amount?.toLocaleString() || '0'}</div>
             )}
             <p className="text-xs text-muted-foreground">
-              {statsLoading ? (
+              </p>
+              {statsLoading && (
                 <Skeleton className="h-4 w-20" />
-              ) : (
-                `${stats?.thisWeek?.count || 0} payments received`
               )}
-            </p>
           </CardContent>
         </Card>
 
@@ -162,12 +158,10 @@ export function AdminDashboard({ onViewChange }: AdminDashboardProps) {
               <div className="text-2xl text-purple-600">${stats?.thisMonth?.amount?.toLocaleString() || '0'}</div>
             )}
             <p className="text-xs text-muted-foreground">
-              {statsLoading ? (
+              </p>
+              {statsLoading && (
                 <Skeleton className="h-4 w-20" />
-              ) : (
-                `${stats?.thisMonth?.count || 0} payments received`
               )}
-            </p>
           </CardContent>
         </Card>
       </div>

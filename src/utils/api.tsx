@@ -5,39 +5,48 @@ const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-
 // Get auth token from localStorage or session
 function getAuthToken() {
   return localStorage.getItem('auth_token');
-}
 
 // Set auth token in localStorage
-export function setAuthToken(token: string) {
+function setAuthToken(token: string) {
   localStorage.setItem('auth_token', token);
 }
 
 // Remove auth token from localStorage
-export function removeAuthToken() {
+function removeAuthToken() {
   localStorage.removeItem('auth_token');
 }
 
-// Make authenticated API request
+// Improved error handling for API requests
 async function apiRequest(endpoint: string, options: RequestInit = {}) {
   const token = getAuthToken();
-  
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': token ? `Bearer ${token}` : `Bearer ${publicAnonKey}`,
     ...options.headers,
   };
-
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(error.error || 'Request failed');
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+    if (!response.ok) {
+      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } catch (e) {
+        // Response wasn't JSON, use default message
+      }
+      throw new Error(errorMessage);
+    }
+    return await response.json();
+  } catch (error: any) {
+    console.error(`API Request failed for ${endpoint}:`, error);
+    throw new Error(
+      error.message || 'Network error: Please check your connection'
+    );
   }
-
-  return response.json();
+}
 }
 
 // Auth API
@@ -81,7 +90,22 @@ export const paymentsAPI = {
       body: JSON.stringify(paymentData),
     }),
 
-  getStats: () => apiRequest('/stats/payments'),
+  getStats: async () => {
+    try {
+      return await apiRequest('/stats/payments');
+    } catch (error: any) {
+      // Log for debugging
+      console.error('Failed to fetch payment stats:', error);
+      // Return default data structure to prevent crashes
+      return {
+        totalPayments: 0,
+        pendingPayments: 0,
+        completedPayments: 0,
+        totalAmount: 0,
+        error: error.message
+      };
+    }
+  },
 };
 
 // Receipts API

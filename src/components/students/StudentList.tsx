@@ -198,19 +198,17 @@ export function StudentList({ onViewChange }: StudentListProps) {
                 {filteredStudents.map((student) => (
                   <TableRow key={student.id}>
                     <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="flex items-center gap-3">
+                        <span className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                           <User className="w-4 h-4 text-blue-600" />
-                        </div>
+                        </span>
                         <span className="font-medium">{student.name}</span>
-                      </div>
+                      </span>
                     </TableCell>
                     <TableCell>{student.class}</TableCell>
                     <TableCell>
-                      <div>
-                        <p className="font-medium">{student.guardianName}</p>
-                        <p className="text-sm text-gray-600">{student.guardianPhone}</p>
-                      </div>
+                      <span className="font-medium">{student.guardianName}</span>
+                      <span className="text-sm text-gray-600">{student.guardianPhone}</span>
                     </TableCell>
                     <TableCell>
                       <span className={student.balance > 0 ? 'text-red-600' : 'text-green-600'}>

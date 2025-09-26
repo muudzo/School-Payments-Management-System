@@ -168,21 +168,17 @@ export function NotificationSystem({ onBack }: NotificationSystemProps) {
                         <TableCell>
                           <Checkbox
                             checked={selectedStudents.includes(student.id)}
-                            onCheckedChange={(checked) => handleSelectStudent(student.id, checked as boolean)}
+                            onCheckedChange={(checked: boolean | undefined) => handleSelectStudent(student.id, !!checked)}
                           />
                         </TableCell>
                         <TableCell>
-                          <div>
-                            <p className="font-medium">{student.name}</p>
-                            <p className="text-sm text-gray-600">{student.class}</p>
-                          </div>
+                          <span className="font-medium">{student.name}</span>
+                          <span className="text-sm text-gray-600">{student.class}</span>
                         </TableCell>
                         <TableCell>{student.guardianName}</TableCell>
                         <TableCell>
-                          <div className="text-sm">
-                            <p>{student.guardianEmail}</p>
-                            <p className="text-gray-600">{student.guardianPhone}</p>
-                          </div>
+                          <span className="text-sm">{student.guardianEmail}</span>
+                          <span className="text-gray-600">{student.guardianPhone}</span>
                         </TableCell>
                         <TableCell>
                           <span className={student.balance > 0 ? 'text-red-600' : 'text-green-600'}>
@@ -311,20 +307,18 @@ export function NotificationSystem({ onBack }: NotificationSystemProps) {
                     <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                       <CheckCircle className="w-4 h-4 text-green-600" />
                     </div>
-                    <div>
-                      <p className="font-medium">{notification.studentName}</p>
-                      <p className="text-sm text-gray-600">
-                        Sent to {notification.guardianName} via {notification.type}
-                      </p>
-                    </div>
+                    <span className="font-medium">{notification.studentName}</span>
+                    <span className="text-sm text-gray-600">
+                      Sent to {notification.guardianName} via {notification.type}
+                    </span>
                   </div>
                   <div className="text-right">
                     <Badge variant="outline" className="text-green-600 border-green-200">
                       {notification.status}
                     </Badge>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <span className="text-xs text-gray-500 mt-1">
                       {new Date(notification.sentAt).toLocaleString()}
-                    </p>
+                    </span>
                   </div>
                 </div>
               ))}

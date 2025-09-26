@@ -47,12 +47,16 @@ export function AdminDashboard({ onViewChange }: AdminDashboardProps) {
   };
   
   const outstandingBalances = students
-    .filter(student => (student.balance ?? 0) > 0)
+    .filter(student => {
+      // Ensure balance fallback to 0 if null/undefined
+      const balance = student && typeof student.balance === 'number' ? student.balance : 0;
+      return balance > 0;
+    })
     .slice(0, 4)
     .map(student => ({
       student: student.name,
       class: student.class,
-      amount: student.balance ?? 0,
+      amount: typeof student.balance === 'number' ? student.balance : 0,
       overdue: student.status === 'overdue'
     }));
 

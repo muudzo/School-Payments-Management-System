@@ -51,7 +51,7 @@ export function PaymentForm({ onBack }: PaymentFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const selectedStudent = students.find(s => s.id === formData.studentId);
+    const selectedStudent = students.find(s => s && s.id === formData.studentId);
     if (!selectedStudent) return;
 
     // Add payment to the system
@@ -68,8 +68,10 @@ export function PaymentForm({ onBack }: PaymentFormProps) {
     });
 
     // Generate receipt immediately
-    const receipt = generateReceipt(payment.id);
-    setGeneratedPayment({ payment, receipt });
+    Promise.resolve(payment).then(p => {
+      const receipt = generateReceipt(p.id);
+      setGeneratedPayment({ payment: p, receipt });
+    });
     setShowSuccess(true);
     
     // Reset form after 3 seconds
@@ -157,7 +159,7 @@ export function PaymentForm({ onBack }: PaymentFormProps) {
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="student">Select Student</Label>
-                <Select value={formData.studentId} onValueChange={(value) => handleInputChange('studentId', value)}>
+                <Select value={formData.studentId} onValueChange={(value: string) => handleInputChange('studentId', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choose a student..." />
                   </SelectTrigger>

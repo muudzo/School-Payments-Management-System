@@ -51,45 +51,76 @@ async function apiRequest(endpoint: string, options: RequestInit = {}) {
 
 // Auth API
 export const authAPI = {
-  signup: (userData: { email: string; password: string; name: string; role: string }) =>
-    apiRequest('/auth/signup', {
-      method: 'POST',
-      body: JSON.stringify(userData),
-    }),
-
-  getProfile: () => apiRequest('/auth/profile'),
+  signup: async (userData: { email: string; password: string; name: string; role: string }) => {
+    try {
+      return await apiRequest('/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify(userData),
+      });
+    } catch (error: any) {
+      return { error: error.message };
+    }
+  },
+  getProfile: async () => {
+    try {
+      return await apiRequest('/auth/profile');
+    } catch (error: any) {
+      return { error: error.message };
+    }
+  },
 };
 
 // Students API
 export const studentsAPI = {
-  getAll: () => apiRequest('/students'),
-  
-  create: (studentData: any) =>
-    apiRequest('/students', {
-      method: 'POST',
-      body: JSON.stringify(studentData),
-    }),
-
-  update: (id: string, updates: any) =>
-    apiRequest(`/students/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(updates),
-    }),
+  getAll: async () => {
+    try {
+      return await apiRequest('/students');
+    } catch (error: any) {
+      return { error: error.message };
+    }
+  },
+  create: async (studentData: any) => {
+    try {
+      return await apiRequest('/students', {
+        method: 'POST',
+        body: JSON.stringify(studentData),
+      });
+    } catch (error: any) {
+      return { error: error.message };
+    }
+  },
+  update: async (id: string, updates: any) => {
+    try {
+      return await apiRequest(`/students/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(updates),
+      });
+    } catch (error: any) {
+      return { error: error.message };
+    }
+  },
 };
 
 // Payments API
 export const paymentsAPI = {
-  getAll: (studentId?: string) => {
-    const query = studentId ? `?studentId=${studentId}` : '';
-    return apiRequest(`/payments${query}`);
+  getAll: async (studentId?: string) => {
+    try {
+      const query = studentId ? `?studentId=${studentId}` : '';
+      return await apiRequest(`/payments${query}`);
+    } catch (error: any) {
+      return { error: error.message };
+    }
   },
-
-  create: (paymentData: any) =>
-    apiRequest('/payments', {
-      method: 'POST',
-      body: JSON.stringify(paymentData),
-    }),
-
+  create: async (paymentData: any) => {
+    try {
+      return await apiRequest('/payments', {
+        method: 'POST',
+        body: JSON.stringify(paymentData),
+      });
+    } catch (error: any) {
+      return { error: error.message };
+    }
+  },
   getStats: async () => {
     try {
       return await apiRequest('/stats/payments');
@@ -110,26 +141,41 @@ export const paymentsAPI = {
 
 // Receipts API
 export const receiptsAPI = {
-  generate: (paymentId: string) =>
-    apiRequest('/receipts/generate', {
-      method: 'POST',
-      body: JSON.stringify({ paymentId }),
-    }),
+  generate: async (paymentId: string) => {
+    try {
+      return await apiRequest('/receipts/generate', {
+        method: 'POST',
+        body: JSON.stringify({ paymentId }),
+      });
+    } catch (error: any) {
+      return { error: error.message };
+    }
+  },
 };
 
 // Notifications API
 export const notificationsAPI = {
-  sendReminder: (studentId: string) =>
-    apiRequest('/notifications/reminder', {
-      method: 'POST',
-      body: JSON.stringify({ studentId }),
-    }),
+  sendReminder: async (studentId: string) => {
+    try {
+      return await apiRequest('/notifications/reminder', {
+        method: 'POST',
+        body: JSON.stringify({ studentId }),
+      });
+    } catch (error: any) {
+      return { error: error.message };
+    }
+  },
 };
 
 // Utility API
 export const utilityAPI = {
-  initSampleData: () =>
-    apiRequest('/init-sample-data', {
-      method: 'POST',
-    }),
+  initSampleData: async () => {
+    try {
+      return await apiRequest('/init-sample-data', {
+        method: 'POST',
+      });
+    } catch (error: any) {
+      return { error: error.message };
+    }
+  },
 };

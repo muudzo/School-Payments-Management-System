@@ -5,16 +5,17 @@ const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-
 // Get auth token from localStorage or session
 function getAuthToken() {
   return localStorage.getItem('auth_token');
+}
 
 // Set auth token in localStorage
-function setAuthToken(token: string) {
+export const setAuthToken = (token: string) => {
   localStorage.setItem('auth_token', token);
-}
+};
 
 // Remove auth token from localStorage
-function removeAuthToken() {
+export const removeAuthToken = () => {
   localStorage.removeItem('auth_token');
-}
+};
 
 // Improved error handling for API requests
 async function apiRequest(endpoint: string, options: RequestInit = {}) {
@@ -46,7 +47,6 @@ async function apiRequest(endpoint: string, options: RequestInit = {}) {
       error.message || 'Network error: Please check your connection'
     );
   }
-}
 }
 
 // Auth API
